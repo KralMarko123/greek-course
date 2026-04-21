@@ -77,6 +77,21 @@ function findImages(folderPath) {
     });
 }
 
+function findLinks(folderPath) {
+  const linksPath = path.join(folderPath, "links.json");
+  if (!fs.existsSync(linksPath)) return [];
+
+  const links = JSON.parse(fs.readFileSync(linksPath, "utf8"));
+  if (!Array.isArray(links)) throw new Error(`${linksPath} must contain an array`);
+
+  return links.map((link) => ({
+    title: link.title,
+    source: link.source,
+    focus: link.focus,
+    url: link.url
+  }));
+}
+
 const lessons = fs
   .readdirSync(root)
   .filter((entry) => dateFolderPattern.test(entry) && fs.statSync(path.join(root, entry)).isDirectory())
@@ -94,6 +109,7 @@ const lessons = fs
       material: material ? `${folderName}/${material}` : "",
       exercises: findExercises(folderPath),
       images: findImages(folderPath),
+      links: findLinks(folderPath),
       tags: date === "2026-04-20" ? ["Alphabet", "Pronunciation", "Articles"] : ["Lesson"]
     };
   })

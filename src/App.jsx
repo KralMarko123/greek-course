@@ -3,12 +3,17 @@ import Icon from "./icons.jsx";
 import { formatDate, getHighlights, getSectionCount, parseMaterial } from "./material.js";
 
 const lessons = window.GREEK_COURSE_LESSONS || [];
+const assetBaseUrl = import.meta.env.BASE_URL || "/";
 
 function encodeAsset(assetPath) {
   return assetPath
     .split("/")
     .map((segment) => encodeURIComponent(segment))
     .join("/");
+}
+
+function assetUrl(assetPath) {
+  return `${assetBaseUrl}${encodeAsset(assetPath)}`;
 }
 
 function LessonCard({ lesson, active, material, onSelect }) {
@@ -55,8 +60,8 @@ function Overview({ activeLesson, material }) {
             <span>Exercise file{activeLesson?.exercises?.length === 1 ? "" : "s"}</span>
           </div>
           <div>
-            <strong>{activeLesson?.images?.length || 0}</strong>
-            <span>Overview image{activeLesson?.images?.length === 1 ? "" : "s"}</span>
+            <strong>{activeLesson?.links?.length || 0}</strong>
+            <span>Practice link{activeLesson?.links?.length === 1 ? "" : "s"}</span>
           </div>
         </div>
       </section>
@@ -102,7 +107,7 @@ function ImageOverview({ images, onExpand }) {
       <div className="image-grid">
         {images.map((image) => (
           <button className="image-card" key={image.path} onClick={() => onExpand(image)} title="View full size">
-            <img src={`/${encodeAsset(image.path)}`} alt={image.title} />
+            <img src={assetUrl(image.path)} alt={image.title} />
             <span>{image.title}</span>
           </button>
         ))}
@@ -133,6 +138,34 @@ function StudySection({ section }) {
   );
 }
 
+function ResourceLinks({ links }) {
+  if (!links?.length) return null;
+
+  return (
+    <section className="resource-panel">
+      <div className="section-heading">
+        <span>
+          <Icon name="video" />
+        </span>
+        <h3>Practice Videos</h3>
+        <small>{links.length} links</small>
+      </div>
+      <div className="resource-grid">
+        {links.map((link) => (
+          <a className="resource-card" href={link.url} key={link.url} target="_blank" rel="noreferrer">
+            <span className="resource-card__source">{link.source}</span>
+            <strong>{link.title}</strong>
+            <span className="resource-card__focus">{link.focus}</span>
+            <span className="resource-card__action">
+              Watch <Icon name="external" />
+            </span>
+          </a>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function Exercises({ exercises }) {
   if (!exercises?.length) return null;
 
@@ -147,7 +180,7 @@ function Exercises({ exercises }) {
       </div>
       <div className="exercise-grid">
         {exercises.map((exercise) => {
-          const path = `/${encodeAsset(exercise.path)}`;
+          const path = assetUrl(exercise.path);
 
           return (
             <article className="exercise-card" key={exercise.path}>
@@ -189,7 +222,7 @@ function ImageLightbox({ image, onClose }) {
         <button className="icon-button lightbox__close" onClick={onClose} title="Close" aria-label="Close image">
           <Icon name="close" />
         </button>
-        <img src={`/${encodeAsset(image.path)}`} alt={image.title} />
+        <img src={assetUrl(image.path)} alt={image.title} />
         <div className="lightbox__caption">{image.title}</div>
       </div>
     </div>
@@ -214,6 +247,7 @@ function LessonDetail({ lesson, material, loading, error, onExpandImage }) {
         </div>
       </div>
       <ImageOverview images={lesson.images} onExpand={onExpandImage} />
+      <ResourceLinks links={lesson.links || []} />
       {material.map((section) => (
         <StudySection section={section} key={section.label} />
       ))}
@@ -241,7 +275,7 @@ export default function App() {
 
     setLoading((current) => ({ ...current, [activeLesson.id]: true }));
 
-    fetch(`/${encodeAsset(activeLesson.material)}`)
+    fetch(assetUrl(activeLesson.material))
       .then((response) => {
         if (!response.ok) throw new Error(`Could not load ${activeLesson.material}`);
         return response.text();

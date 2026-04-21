@@ -7,11 +7,14 @@
     "start": "vite --host 127.0.0.1",
     "build": "vite build",
     "postbuild": "node tools/copy-static-assets.js",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
     "preview": "vite preview --host 127.0.0.1",
     "manifest": "node tools/build-manifest.js"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.0.1",
+    "gh-pages": "^6.3.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "vite": "^8.0.9"

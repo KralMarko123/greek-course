@@ -39,6 +39,19 @@ The app reads `.txt` materials directly and embeds PDF exercises when the browse
 Images placed in `DD-MM-YYYY/images/` are shown in the lesson's visual overview section. Supported image formats include
 `.webp`, `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, and `.avif`.
 
+Optional practice links can be added in `DD-MM-YYYY/links.json`:
+
+```json
+[
+  {
+    "title": "Learn the Greek alphabet and pronunciation",
+    "source": "My Small Skinny Greek Lessons",
+    "focus": "Modern Greek alphabet sounds and vowel recap",
+    "url": "https://www.youtube.com/watch?v=8Zlr32wqQNg"
+  }
+]
+```
+
 ## Build
 
 ```bash
@@ -46,3 +59,13 @@ npm.cmd run build
 ```
 
 The build step creates `dist/` and copies the lesson manifest plus dated lesson folders into it.
+
+## GitHub Pages
+
+Publish the built app to a `gh-pages` branch:
+
+```bash
+npm.cmd run deploy
+```
+
+In the GitHub repository settings, set Pages to deploy from the `gh-pages` branch.
