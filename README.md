@@ -2,6 +2,8 @@
 
 A small local web app for reviewing lesson materials from dated course folders.
 
+Site is live at [kralmarko123.github.io/greek-course](https://kralmarko123.github.io/greek-course/)
+
 ## Run
 
 ```bash
