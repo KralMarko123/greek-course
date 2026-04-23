@@ -24,7 +24,7 @@ Create a folder named with the lesson date:
 DD-MM-YYYY/
 ```
 
-Put the main notes as a `.txt` file in that folder. Put exercise files in:
+Put the main notes in `main.txt`. Put exercise files in numbered order inside:
 
 ```text
 DD-MM-YYYY/exercises/
@@ -37,6 +37,7 @@ npm.cmd run manifest
 ```
 
 The app reads `.txt` materials directly and embeds PDF exercises when the browser supports previewing them.
+Numbered exercise files such as `1.pdf`, `2.pdf`, and `3.pdf` are shown in numeric order as Exercise 1, Exercise 2, and Exercise 3.
 
 Images placed in `DD-MM-YYYY/images/` are shown in the lesson's visual overview section. Supported image formats include
 `.webp`, `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, and `.avif`.

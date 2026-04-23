@@ -3,6 +3,16 @@ const path = require("path");
 
 const root = path.resolve(__dirname, "..");
 const dateFolderPattern = /^\d{2}-\d{2}-\d{4}$/;
+const lessonDetails = {
+  "2026-04-20": {
+    title: "Greek Alphabet, Pronunciation, and Articles",
+    tags: ["Alphabet", "Pronunciation", "Articles"]
+  },
+  "2026-04-22": {
+    title: "Greek Articles, Plurals, and Adjective Agreement",
+    tags: ["Articles", "Plurals", "Adjectives"]
+  }
+};
 
 function toIsoDate(folderName) {
   const [day, month, year] = folderName.split("-");
@@ -18,10 +28,12 @@ function toDisplayTitle(isoDate) {
 }
 
 function findMaterial(folderPath) {
-  return fs
+  const textFiles = fs
     .readdirSync(folderPath)
     .filter((entry) => entry.toLowerCase().endsWith(".txt"))
-    .sort()[0];
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
+  return textFiles.find((entry) => entry.toLowerCase() === "main.txt") || textFiles[0];
 }
 
 function findExercises(folderPath) {
@@ -29,24 +41,27 @@ function findExercises(folderPath) {
   if (!fs.existsSync(exercisesPath)) return [];
 
   const friendlyTitles = {
-    "article_ex_a_filled_endings_v2_(1)_(1).pdf": "Article endings practice"
+    "20-04-2026/1.pdf": "Article endings practice"
   };
 
   return fs
     .readdirSync(exercisesPath)
     .filter((entry) => fs.statSync(path.join(exercisesPath, entry)).isFile())
-    .sort()
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
     .map((fileName) => {
       const extension = path.extname(fileName).slice(1).toLowerCase() || "file";
-      const title = fileName
+      const folderName = path.basename(folderPath);
+      const titleKey = `${folderName}/${fileName}`;
+      const baseTitle = fileName
         .replace(path.extname(fileName), "")
         .replace(/[_-]+/g, " ")
         .replace(/\s+/g, " ")
         .trim();
+      const title = /^\d+$/.test(baseTitle) ? `Exercise ${baseTitle}` : baseTitle;
 
       return {
-        title: friendlyTitles[fileName] || title.charAt(0).toUpperCase() + title.slice(1),
-        path: `${path.basename(folderPath)}/exercises/${fileName}`,
+        title: friendlyTitles[titleKey] || title.charAt(0).toUpperCase() + title.slice(1),
+        path: `${folderName}/exercises/${fileName}`,
         type: extension
       };
     });
@@ -100,17 +115,18 @@ const lessons = fs
     const folderPath = path.join(root, folderName);
     const material = findMaterial(folderPath);
     const date = toIsoDate(folderName);
+    const details = lessonDetails[date] || {};
 
     return {
       id: date,
       date,
-      title: date === "2026-04-20" ? "Greek Alphabet, Pronunciation, and Articles" : toDisplayTitle(date),
+      title: details.title || toDisplayTitle(date),
       folder: folderName,
       material: material ? `${folderName}/${material}` : "",
       exercises: findExercises(folderPath),
       images: findImages(folderPath),
       links: findLinks(folderPath),
-      tags: date === "2026-04-20" ? ["Alphabet", "Pronunciation", "Articles"] : ["Lesson"]
+      tags: details.tags || ["Lesson"]
     };
   })
   .filter((lesson) => lesson.material);
